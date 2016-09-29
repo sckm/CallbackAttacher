@@ -19,6 +19,7 @@
         </activity>
 
         <activity android:name=".Activity1"/>
+        <activity android:name=".ExtendedActivity"/>
     </application>
 
 </manifest>

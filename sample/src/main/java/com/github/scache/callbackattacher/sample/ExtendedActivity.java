@@ -10,13 +10,13 @@ import android.widget.Toast;
 import com.github.scache.callbackattacher.CallbackAttacher;
 import com.github.scache.callbackattacher.processor.AttachCallback;
 
-public class Activity1 extends AppCompatActivity implements Callback {
+public class ExtendedActivity extends AppCompatActivity implements Callback {
     @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(new InnerFragment(), "inner fragment")
+                    .add(new ChildFragment(), "extend fragment")
                     .commit();
         }
     }
@@ -25,19 +25,37 @@ public class Activity1 extends AppCompatActivity implements Callback {
         Toast.makeText(this, getClass().getSimpleName() + ": called callback", Toast.LENGTH_SHORT).show();
     }
 
-    public static class InnerFragment extends Fragment {
+    public static class BaseFragment extends Fragment {
         @AttachCallback
-        Callback callback;
+        Callback parentCallback;
 
         @Override public void onAttach(Context context) {
             super.onAttach(context);
             CallbackAttacher.attach(this, context);
-            callback.onSuccess();
+            parentCallback.onSuccess();
         }
 
         @Override public void onDetach() {
             super.onDetach();
             CallbackAttacher.detach(this);
+        }
+    }
+
+    public static class ChildFragment extends BaseFragment {
+        @AttachCallback
+        Callback childCallback;
+
+        @Override public void onAttach(Context context) {
+            super.onAttach(context);
+            assert parentCallback != null;
+            assert childCallback != null;
+            childCallback.onSuccess();
+        }
+
+        @Override public void onDetach() {
+            super.onDetach();
+            assert parentCallback == null;
+            assert childCallback == null;
         }
     }
 }

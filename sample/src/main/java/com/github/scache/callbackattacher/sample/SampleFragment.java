@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
+import com.github.scache.callbackattacher.CallbackAttacher;
 import com.github.scache.callbackattacher.processor.AttachCallback;
 
 public class SampleFragment extends Fragment {
@@ -19,7 +20,7 @@ public class SampleFragment extends Fragment {
 
     @Override public void onAttach(Context context) {
         super.onAttach(context);
-        SampleFragment_CallbackAttacher.attach(this, context);
+        CallbackAttacher.attach(this, context);
         callback.onSuccess();
         Log.d("SampleFragment", "onAttach: callback=" + callback);
         Log.d("SampleFragment", "onAttach: callback2=" + callback2);
@@ -28,7 +29,7 @@ public class SampleFragment extends Fragment {
 
     @Override public void onDetach() {
         super.onDetach();
-        SampleFragment_CallbackAttacher.detach(this);
+        CallbackAttacher.detach(this);
         Log.d("SampleFragment", "onDetach: callback=" + callback);
         Log.d("SampleFragment", "onDetach: callback2=" + callback2);
         Log.d("SampleFragment", "onDetach: callback3=" + callback3);

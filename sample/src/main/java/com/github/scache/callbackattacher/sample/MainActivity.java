@@ -14,6 +14,7 @@ public class MainActivity extends AppCompatActivity implements Callback, View.On
         setContentView(R.layout.activity_main);
 
         findViewById(R.id.inner_fragment_button).setOnClickListener(this);
+        findViewById(R.id.extend_fragment_button).setOnClickListener(this);
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
@@ -32,6 +33,10 @@ public class MainActivity extends AppCompatActivity implements Callback, View.On
         switch (v.getId()) {
             case R.id.inner_fragment_button:
                 intent = new Intent(this, Activity1.class);
+                break;
+
+            case R.id.extend_fragment_button:
+                intent = new Intent(this, ExtendedActivity.class);
                 break;
         }
 
