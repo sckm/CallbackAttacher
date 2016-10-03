@@ -10,25 +10,39 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.github.scache.callbackattacher.MainActivity"
-    >
+>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Hello World!"
-        />
+    />
 
     <Button
         android:id="@+id/inner_fragment_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="inner fragment"
-        />
+    />
 
     <Button
         android:id="@+id/extend_fragment_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="extend fragment"
+    />
+
+    <Button
+        android:id="@+id/extend2_fragment_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="extend2 fragment"
+    />
+
+    <Button
+        android:id="@+id/no_callback_fragment_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="no callback fragment"
     />
 </LinearLayout>

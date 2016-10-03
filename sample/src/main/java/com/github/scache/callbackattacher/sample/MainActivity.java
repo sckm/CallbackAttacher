@@ -15,6 +15,8 @@ public class MainActivity extends AppCompatActivity implements Callback, View.On
 
         findViewById(R.id.inner_fragment_button).setOnClickListener(this);
         findViewById(R.id.extend_fragment_button).setOnClickListener(this);
+        findViewById(R.id.extend2_fragment_button).setOnClickListener(this);
+        findViewById(R.id.no_callback_fragment_button).setOnClickListener(this);
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
@@ -37,6 +39,12 @@ public class MainActivity extends AppCompatActivity implements Callback, View.On
 
             case R.id.extend_fragment_button:
                 intent = new Intent(this, ExtendedActivity.class);
+                break;
+            case R.id.extend2_fragment_button:
+                intent = new Intent(this, ExtendedActivity2.class);
+                break;
+            case R.id.no_callback_fragment_button:
+                intent = new Intent(this, NoCallbackActivity.class);
                 break;
         }
 

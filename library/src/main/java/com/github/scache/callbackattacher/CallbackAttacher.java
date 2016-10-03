@@ -7,9 +7,16 @@ import android.util.Log;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class CallbackAttacher {
     private static final String TAG = CallbackAttacher.class.getSimpleName();
+
+    // attach(A,Object)の第一引数(A)の型を決めるためのMap
+    static final Map<Class<?>, Class<?>> TARGETS = new LinkedHashMap<Class<?>, Class<?>>();
+
+    static final Map<Class<?>, Class<?>> ATTACHERS = new LinkedHashMap<Class<?>, Class<?>>();
 
     private static boolean debug = true;
 
@@ -27,7 +34,7 @@ public class CallbackAttacher {
             return;
         }
 
-        attachMethod = findMethod(attacherClass, "attach", targetClass, Object.class);
+        attachMethod = findMethod(attacherClass, "attach", TARGETS.get(targetClass), Object.class);
         if (attachMethod == null) {
             if (debug)
                 Log.d(TAG, "cannot find attach method: class=" + attacherClass.getSimpleName());
@@ -47,7 +54,7 @@ public class CallbackAttacher {
             return;
         }
 
-        detachMethod = findMethod(attacherClass, "detach", targetClass);
+        detachMethod = findMethod(attacherClass, "detach", TARGETS.get(targetClass));
         if (detachMethod == null) {
             if (debug)
                 Log.d(TAG, "cannot find detach method: class=" + attacherClass.getSimpleName());
@@ -59,20 +66,34 @@ public class CallbackAttacher {
 
     @Nullable @CheckResult
     private static Class<? extends Object> findAttacherForClass(Class<?> cls) {
+        Class<?> attacherClass = ATTACHERS.get(cls);
+        if (attacherClass != null) {
+            if (debug) Log.d(TAG, "findAttacherTargetForClass: Hit cache " + cls.getName());
+            return attacherClass;
+        }
+
+        if (debug) Log.d(TAG, "findAttacherTargetForClass: Miss cache " + cls.getName());
+
         String clsName = cls.getName();
         if (clsName.startsWith("android.") || clsName.startsWith("java.")) {
+            TARGETS.put(cls, null);
+            ATTACHERS.put(cls, null);
             return null;
         }
 
-        Class<?> attacherClass;
         try {
             attacherClass = Class.forName(clsName + "_CallbackAttacher");
+            TARGETS.put(cls, cls);
+            ATTACHERS.put(cls, attacherClass);
         } catch (ClassNotFoundException e) {
             if (debug) Log.d(TAG, "Not found. Trying superclass " + cls.getSuperclass().getName());
             attacherClass = findAttacherForClass(cls.getSuperclass());
+            TARGETS.put(cls, TARGETS.get(cls.getSuperclass()));
+            ATTACHERS.put(cls, attacherClass);
         }
         return attacherClass;
     }
+
 
     @Nullable
     private static Method findMethod(Class<?> clazz, String methodName, Class<?>... parameterTypes) {

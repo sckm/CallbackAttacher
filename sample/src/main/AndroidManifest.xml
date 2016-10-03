@@ -2,7 +2,7 @@
 <manifest
     package="com.github.scache.callbackattacher.sample"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    >
+>
 
     <application
         android:allowBackup="true"
@@ -20,6 +20,8 @@
 
         <activity android:name=".Activity1"/>
         <activity android:name=".ExtendedActivity"/>
+        <activity android:name=".ExtendedActivity2"/>
+        <activity android:name=".NoCallbackActivity"/>
     </application>
 
 </manifest>

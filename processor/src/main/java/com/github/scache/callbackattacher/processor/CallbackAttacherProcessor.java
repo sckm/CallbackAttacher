@@ -18,6 +18,9 @@ import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 
 
 @SupportedAnnotationTypes("com.github.scache.callbackattacher.processor.AttachCallback")
@@ -41,8 +44,10 @@ public class CallbackAttacherProcessor extends AbstractProcessor {
         for (Map.Entry<Element, List<Element>> entry : map.entrySet()) {
             Element enclosingElement = entry.getKey();
             List<Element> elements = entry.getValue();
+
+            Element parentElement = findParent(enclosingElement, map.keySet());
             try {
-                new AttacherProcessorUnit()
+                new AttacherProcessorUnit(parentElement)
                         .createJavaFile(enclosingElement, elements)
                         .writeTo(filer);
             } catch (IOException e) {
@@ -61,5 +66,18 @@ public class CallbackAttacherProcessor extends AbstractProcessor {
         }
 
         return fieldElements;
+    }
+
+    private Element findParent(Element element, Set<Element> parents) {
+        while (true) {
+            TypeMirror p = ((TypeElement) element).getSuperclass();
+            if (p.getKind() == TypeKind.NONE) {
+                return null;
+            }
+            element = ((DeclaredType) p).asElement();
+            if (parents.contains(element)) {
+                return element;
+            }
+        }
     }
 }

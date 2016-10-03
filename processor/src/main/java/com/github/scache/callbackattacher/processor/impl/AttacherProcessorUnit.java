@@ -19,6 +19,12 @@ import static com.github.scache.callbackattacher.processor.util.ElementUtil.getP
 
 public class AttacherProcessorUnit implements ProcessorUnit {
 
+    private Element parentElement;
+
+    public AttacherProcessorUnit(Element parentElement) {
+        this.parentElement = parentElement;
+    }
+
     @Override public JavaFile createJavaFile(Element enclosingElement, List<Element> fields) {
         String packageName = getPackageName(enclosingElement);
 
@@ -33,13 +39,7 @@ public class AttacherProcessorUnit implements ProcessorUnit {
             targetType = ((ParameterizedTypeName) targetType).rawType;
         }
 
-        // remove package name. replace dots(.) to $ if enclosing element is inner class
-        TypeElement enclosingTypeElement = (TypeElement) enclosingElement;
-        String packageName = getPackage(enclosingElement).getQualifiedName().toString();
-        String classNameString = enclosingTypeElement.getQualifiedName().toString().substring(
-                packageName.length() + 1).replace('.', '$');
-
-        ClassName className = ClassName.get(packageName, classNameString + "_CallbackAttacher");
+        ClassName className = createClassName(enclosingElement);
 
         TypeSpec.Builder builder = TypeSpec
                 .classBuilder(className)
@@ -50,6 +50,16 @@ public class AttacherProcessorUnit implements ProcessorUnit {
                 .addMethod(createDetachMethod(enclosingElement, fields));
 
         return builder.build();
+    }
+
+    private ClassName createClassName(Element element) {
+        // remove package name. replace dots(.) to $ if enclosing element is inner class
+        TypeElement enclosingTypeElement = (TypeElement) element;
+        String packageName = getPackage(element).getQualifiedName().toString();
+        String classNameString = enclosingTypeElement.getQualifiedName().toString().substring(
+                packageName.length() + 1).replace('.', '$');
+
+        return ClassName.get(packageName, classNameString + "_CallbackAttacher");
     }
 
     private MethodSpec createAttachMethod(Element enclosingElement, List<Element> fields) {
@@ -65,6 +75,10 @@ public class AttacherProcessorUnit implements ProcessorUnit {
                 .returns(TypeName.VOID)
                 .addParameter(targetType, "target")
                 .addParameter(TypeName.OBJECT, "source");
+
+        if (parentElement != null) {
+            builder.addStatement("$T.attach(target, source)", createClassName(parentElement));
+        }
 
         for (Element element : fields) {
             TypeName fieldTypeName = TypeName.get(element.asType());
@@ -90,10 +104,15 @@ public class AttacherProcessorUnit implements ProcessorUnit {
                 .returns(TypeName.VOID)
                 .addParameter(targetType, "target");
 
+        if (parentElement != null) {
+            builder.addStatement("$T.detach(target)", createClassName(parentElement));
+        }
+
         for (Element element : fields) {
             builder.addStatement("target.$L = null", element.getSimpleName().toString());
         }
 
         return builder.build();
     }
+
 }
