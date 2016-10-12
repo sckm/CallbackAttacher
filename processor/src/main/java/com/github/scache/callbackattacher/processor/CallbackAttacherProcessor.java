@@ -17,10 +17,13 @@ import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.tools.Diagnostic;
 
 
 @SupportedAnnotationTypes("com.github.scache.callbackattacher.processor.AttachCallback")
@@ -44,6 +47,15 @@ public class CallbackAttacherProcessor extends AbstractProcessor {
         for (Map.Entry<Element, List<Element>> entry : map.entrySet()) {
             Element enclosingElement = entry.getKey();
             List<Element> elements = entry.getValue();
+
+            boolean hasError = false;
+            for (Element element : elements) {
+                hasError |= isInaccessibleFromGeneratedClass(element);
+            }
+
+            if (hasError) {
+                continue;
+            }
 
             Element parentElement = findParent(enclosingElement, map.keySet());
             try {
@@ -79,5 +91,34 @@ public class CallbackAttacherProcessor extends AbstractProcessor {
                 return element;
             }
         }
+    }
+
+    private boolean isInaccessibleFromGeneratedClass(Element element) {
+        Element enclosingElement = element.getEnclosingElement();
+
+        Set<Modifier> modifiers = element.getModifiers();
+        // verify field modifiers
+        if (modifiers.contains(Modifier.PRIVATE) || modifiers.contains(Modifier.STATIC)) {
+            error(element, element.getSimpleName() + " must not be private or static.");
+            return true;
+        }
+
+        // verify member field
+        if (enclosingElement.getKind() != ElementKind.CLASS) {
+            error(element, element.getSimpleName() + " may only be contained in classes.");
+            return true;
+        }
+
+        // verify enclosing class is not private
+        if (enclosingElement.getModifiers().contains(Modifier.PRIVATE)) {
+            error(element, element.getSimpleName() + " may only be contained in private classes.");
+            return true;
+        }
+
+        return false;
+    }
+
+    private void error(Element element, String message) {
+        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, message, element);
     }
 }
