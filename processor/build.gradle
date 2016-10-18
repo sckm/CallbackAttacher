@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'com.novoda.bintray-release'
 
 sourceCompatibility = JavaVersion.VERSION_1_6
 targetCompatibility = JavaVersion.VERSION_1_6
@@ -7,4 +8,13 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
     compile "com.squareup:javapoet:1.7.0"
+}
+
+publish {
+    groupId = 'com.github.sckm.callbackattacher'
+    artifactId = 'calbackattacher-processor'
+    publishVersion = VERSION_NAME
+    desc = ''
+    website = 'https://github.com/sckm/CallbackAttacher'
+    licences = ['Apache-2.0']
 }
