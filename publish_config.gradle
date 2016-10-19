@@ -1,0 +1,8 @@
+ext{
+    publish_config = [
+            group_id   : 'com.github.sckm.callbackattacher',
+            website   : 'https://github.com/sckm/CallbackAttacher',
+            repository: 'https://github.com/sckm/CallbackAttacher.git',
+            licences  : ['Apache-2.0']
+    ]
+}

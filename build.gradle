@@ -1,4 +1,9 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
+apply from: project.file('publish_config.gradle')
+
+ext {
+    publish_config.version_name = VERSION_NAME
+}
 
 buildscript {
     repositories {

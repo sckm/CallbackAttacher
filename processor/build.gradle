@@ -11,10 +11,13 @@ dependencies {
 }
 
 publish {
-    groupId = 'com.github.sckm.callbackattacher'
     artifactId = 'calbackattacher-processor'
-    publishVersion = VERSION_NAME
     desc = ''
-    website = 'https://github.com/sckm/CallbackAttacher'
-    licences = ['Apache-2.0']
+
+    def publish_config = project.rootProject.ext.publish_config
+    groupId = publish_config.group_id
+    publishVersion = publish_config.version_name
+    website = publish_config.website
+    repository = publish_config.repository
+    licences = publish_config.licences
 }
